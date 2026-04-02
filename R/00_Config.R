@@ -1,7 +1,7 @@
 # ---- LOAD PACKAGES ----
 packages <- c(
   "tidyverse", "lme4", "lmerTest", "dplyr", "lubridate", "ggplot2",
-  "fitdistrplus", "logspline", "diptest", "grid", "hrbrthemes", "broom",
+  "fitdistrplus", "logspline", "diptest", "grid", "broom",
   "gridExtra", "gtable", "ggpubr"
 )
 
