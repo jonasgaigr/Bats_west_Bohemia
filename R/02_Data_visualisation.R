@@ -456,3 +456,106 @@ vseruby_year <- vseruby_year + theme(legend.title.align=0.5)
 vseruby_year
 ggsave(vseruby_year, file = "vseruby.png", width = 8, height = 5)
 
+# Helper function
+align_legend <- function(p, hjust = 0.5) {
+  g <- cowplot::plot_to_gtable(p)
+  grobs <- g$grobs
+  legend_index <- which(sapply(grobs, function(x) x$name) == "guide-box")
+  legend <- grobs[[legend_index]]
+  guides_index <- which(sapply(legend$grobs, function(x) x$name) == "layout")
+  
+  for (gi in guides_index) {
+    guides <- legend$grobs[[gi]]
+    spacing <- guides$width[5]
+    guides <- gtable::gtable_add_cols(guides, hjust*spacing, 1)
+    guides$widths[6] <- (1-hjust)*spacing
+    title_index <- guides$layout$name == "title"
+    guides$layout$l[title_index] <- 2
+    legend$grobs[[gi]] <- guides
+  }
+  g$grobs[[legend_index]] <- legend
+  g
+}
+
+# 1. CORE GRAPHS ----
+paus_ar <- netopyri_all_t %>% filter(DRUH == "Paus") %>%
+  ggplot(aes(x = ROK, y = POCET, color = MEAN_T)) +
+  xlab("\n ROK") + ylab("POČET JEDINCŮ\n") +
+  geom_smooth(method = "glm", method.args = list(family = "poisson") , size = 2) +
+  scale_colour_viridis_c(name = "TEPLOTA (°C)") +
+  geom_point(size = 5) +
+  ggtitle("Plecotus austriacus\nCHKO Český kras") +
+  theme_bw() + theme(plot.title = element_text(hjust = 0.5), text = element_text(size = 36, face = "bold"), axis.text.x = element_text(size = 32, face = "bold"))
+print(paus_ar)
+
+mmyo_ar <- netopyri_all_t %>% filter(DRUH == "Mmyo") %>%
+  ggplot(aes(x = ROK, y = POCET)) +
+  xlab("\nROK") + ylab("POČET JEDINCŮ\n") +
+  geom_smooth(method = "glm", method.args = list(family = "poisson") , size = 1.7) +
+  geom_point(size = 3.5) +
+  ggtitle("Myotis myotis\nCHKO Český kras") +
+  theme_bw() + theme(plot.title = element_text(hjust = 0.5), text = element_text(size = 22, face = "bold"), axis.text.x = element_text(size = 20, face = "bold"))
+print(mmyo_ar)
+
+rhip_ar <- netopyri_all_t %>% filter(DRUH == "Rhip") %>%
+  ggplot(aes(x = ROK, y = POCET, color = MEAN_T)) +
+  xlab("\nROK") + ylab("POČET JEDINCŮ\n") +
+  geom_smooth(method = "glm", method.args = list(family = "poisson") , size = 1.7) +
+  scale_colour_viridis_c(name = "TEPLOTA (°C)") +
+  geom_point(size = 3.5) +
+  ggtitle("Rhinolophus hipposideros\nCHKO Český kras") +
+  theme_bw() + theme(plot.title = element_text(hjust = 0.5), text = element_text(size = 22, face = "bold"), axis.text.x = element_text(size = 20, face = "bold"))
+
+rhip_at <- netopyri_all_t %>% filter(DRUH == "Rhip") %>%
+  ggplot(aes(x = MEAN_T, y = POCET)) +
+  xlab("\nPRŮMĚRNÁ TEPLOTA (°C)") + ylab("POČET JEDINCŮ\n") +
+  geom_smooth(method = "glm", method.args = list(family = "poisson") , size = 1.7) +
+  geom_point(size = 3.5) +
+  ggtitle("Rhinolophus hipposideros\nCHKO Český kras") +
+  theme_bw() + theme(plot.title = element_text(hjust = 0.5), text = element_text(size = 22, face = "bold"), axis.text.x = element_text(size = 20, face = "bold"))
+
+bbar_ar <- netopyri_all_t %>% filter(DRUH == "Bbar") %>%
+  ggplot(aes(x = ROK, y = POCET, color = MEAN_T)) +
+  xlab("\nROK") + ylab("POČET JEDINCŮ\n") +
+  geom_smooth(method = "glm", method.args = list(family = "poisson") , size = 1.7) +
+  scale_colour_viridis_c(name = "TEPLOTA (°C)") + geom_point(size = 3.5) +
+  ggtitle("Barbastella barbastellus\nCHKO Český kras") +
+  theme_bw() + theme(plot.title = element_text(hjust = 0.5), text = element_text(size = 22, face = "bold"), axis.text.x = element_text(size = 20, face = "bold"))
+
+bbar_at <- netopyri_all_t %>% filter(DRUH == "Bbar") %>%
+  ggplot(aes(x = MEAN_T, y = POCET)) +
+  xlab("\nPRŮMĚRNÁ TEPLOTA (°C)") + ylab("POČET JEDINCŮ\n") +
+  geom_smooth(method = "glm", method.args = list(family = "poisson") , size = 1.7) +
+  geom_point(size = 3.5) + ggtitle("Barbastella barbastellus\nCHKO Český kras") +
+  theme_bw() + theme(plot.title = element_text(hjust = 0.5), text = element_text(size = 22, face = "bold"), axis.text.x = element_text(size = 20, face = "bold"))
+
+# 2. MALÁ AMERIKA PLOTS ----
+ma_mmyo_plot <- netopyri_ma_t %>% filter(DRUH == "MyoMyo") %>%
+  ggplot(aes(x = ROK, y = POCET, color = MEAN_T)) +
+  annotate("rect",xmin = 2005, xmax = 2012, ymin = -Inf, ymax = Inf, color = "light grey", fill = "light grey", alpha = 0.5) +
+  annotate("rect", xmin = 2012, xmax = Inf, ymin = -Inf, ymax = Inf, color = "grey", fill = "grey", alpha = 0.5) +
+  xlab("\nROK") + ylab("POČET JEDINCŮ\n") + scale_colour_viridis_c(name = "TEPLOTA (°C)") +
+  geom_line(color = "black", size = 2) + geom_point(size = 5) +
+  ggtitle("Myotis myotis\nMalá Amerika") + theme_bw() + theme(plot.title = element_text(hjust = 0.5), text = element_text(size = 36, face = "bold"), axis.text.x = element_text(size = 32, face = "bold"))
+
+ggsave(ma_mmyo_plot, file = "Outputs/Plots/ma_myomyo_plot.png", width = 16, height = 10)
+
+ma_mdau_plot <- netopyri_ma_t %>% filter(DRUH == "MyoDau") %>%
+  ggplot(aes(x = ROK, y = POCET, color = MEAN_T)) +
+  annotate("rect",xmin = 2005, xmax = 2012, ymin = -Inf, ymax = Inf, color = "light grey", fill = "light grey", alpha = 0.5) +
+  annotate("rect", xmin = 2012, xmax = Inf, ymin = -Inf, ymax = Inf, color = "grey", fill = "grey", alpha = 0.5) +
+  xlab("\nROK") + ylab("POČET JEDINCŮ\n") + scale_colour_viridis_c(name = "TEPLOTA (°C)") +
+  geom_line(color = "black", size = 2) + geom_point(size = 5) +
+  ggtitle("Myotis daubentonii\nMalá Amerika") + theme_bw() + theme(plot.title = element_text(hjust = 0.5), text = element_text(size = 36, face = "bold"), axis.text.x = element_text(size = 32, face = "bold"))
+
+ggsave(ma_mdau_plot, file = "Outputs/Plots/ma_myodau_plot.png", width = 16, height = 10)
+
+ma_bbar_plot <- netopyri_ma_t %>% filter(DRUH == "BarBar") %>%
+  ggplot(aes(x = ROK, y = POCET, color = MEAN_T)) +
+  annotate("rect",xmin = 2005, xmax = 2012, ymin = -Inf, ymax = Inf, color = "light grey", fill = "light grey", alpha = 0.5) +
+  annotate("rect", xmin = 2012, xmax = Inf, ymin = -Inf, ymax = Inf, color = "grey", fill = "grey", alpha = 0.5) +
+  xlab("\nROK") + ylab("POČET JEDINCŮ\n") + scale_colour_viridis_c(name = "TEPLOTA (°C)") +
+  geom_line(color = "black", size = 2) + geom_point(size = 5) +
+  ggtitle("Barbastella barbastellus\nMalá Amerika") + theme_bw() + theme(plot.title = element_text(hjust = 0.5), text = element_text(size = 36, face = "bold"), axis.text.x = element_text(size = 32, face = "bold"))
+
+ggsave(ma_bbar_plot, file = "Outputs/Plots/ma_barbar_plot.png", width = 16, height = 10)
