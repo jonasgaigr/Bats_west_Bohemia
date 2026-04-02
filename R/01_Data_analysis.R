@@ -55,3 +55,54 @@ bat_models <- bats %>%
 print(bat_models)
 
 write.csv2(bat_models, "bat_trends_by_site.csv", row.names = FALSE)
+
+# CESKY KRAS ----
+
+# 1. GLM MODELS ----
+mdau_mt <- glm(POCET ~ MEAN_T, data = filter(netopyri_ma_t, DRUH == "MyoDau"), family = poisson())
+summary(mdau_mt)
+
+mmyo_mt <- glm(POCET ~ MEAN_T, data = filter(netopyri_ma_t, DRUH == "MyoMyo"), family = poisson())
+summary(mmyo_mt)
+
+bbar_mt <- glm(POCET ~ MEAN_T, data = filter(netopyri_ma_t, DRUH == "BarBar"), family = poisson())
+summary(bbar_mt)
+
+bbar_at <- glm(POCET ~ MEAN_T, data = filter(netopyri_all_t, DRUH == "Bbar"), family = poisson())
+summary(bbar_at)
+
+bbar_ar <- glm(POCET ~ ROK, data = filter(netopyri_all_t, DRUH == "Bbar"), family = poisson())
+summary(bbar_ar)
+
+bbar_art <- glm(POCET ~ ROK + MEAN_T, data = filter(netopyri_all_t, DRUH == "Bbar"), family = poisson())
+summary(bbar_art)
+
+mmyo_at <- glm(POCET ~ MEAN_T, data = filter(netopyri_all_t, DRUH == "Mmyo"), family = poisson())
+summary(mmyo_at)
+
+mmyo_ar <- glm(POCET ~ c(ROK), data = filter(netopyri_all_t, DRUH == "Mmyo"), family = poisson())
+summary(mmyo_ar)
+
+rhip_at <- glm(POCET ~ MEAN_T, data = filter(netopyri_all_t, DRUH == "Rhip"), family = poisson())
+summary(rhip_at)
+
+rhip_ar <- glm(POCET ~ ROK, data = filter(netopyri_all_t, DRUH == "Rhip"), family = poisson())
+summary(rhip_ar)
+
+paus_at <- glm(POCET ~ MEAN_T, data = filter(netopyri_all_t, DRUH == "Paus"), family = poisson())
+summary(paus_at)
+
+paus_ar <- glm(POCET ~ ROK, data = filter(netopyri_all_t, DRUH == "Paus"), family = poisson())
+summary(paus_ar)
+
+paur_at <- glm(POCET ~ MEAN_T, data = filter(netopyri_all_t, DRUH == "Paur"), family = poisson())
+summary(paur_at)
+
+ppip_at <- glm(POCET ~ MEAN_T, data = filter(netopyri_all_t, DRUH == "Ppip"), family = poisson())
+summary(ppip_at)
+
+ppip_ar <- glm(POCET ~ ROK, data = filter(netopyri_all_t, DRUH == "Ppip"), family = poisson())
+summary(ppip_ar)
+
+# Mean counts
+netopyri_all_t %>% group_by(DRUH) %>% summarise(MEAN_N = mean(POCET, na.rm = TRUE))
