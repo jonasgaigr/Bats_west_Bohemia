@@ -47,3 +47,49 @@ ejpovice <- read.csv2("Data/Inputs/ejpovice.csv")
 manetin  <- read.csv2("Data/Inputs/manetin.csv")
 vseruby  <- read.csv2("Data/Inputs/vseruby.csv")
 radnice  <- read.csv2("Data/Inputs/radnice.csv")
+
+
+# 2. LOAD CESKY KRAS ----
+netopyri_all <- read.csv2("Data/Inputs/netopyri_all.csv",
+                          stringsAsFactors = FALSE, fileEncoding = "Windows-1250")
+netopyri_ma  <- read.csv2("Data/Inputs/netopyri_ma.csv",
+                          stringsAsFactors = FALSE, fileEncoding = "Windows-1250")
+
+netopyri_all <- netopyri_all %>% 
+  pivot_longer(cols = 2:ncol(netopyri_all),
+               names_to = "DRUH",
+               values_to = "POCET")
+
+# 3. CLIMATE DATA (TEPLOTA PRŮMĚR 15/01 - 15/02) ----
+klimadata_read <- readr::read_csv2("https://raw.githubusercontent.com/manmatej/chmu-process/master/airTmean.csv")
+
+klimadata <- klimadata_read %>%
+  dplyr::select(date, P1PKLE01, P1DOBE01) %>%
+  dplyr::rename(KLEME_T = P1PKLE01, DOBRE_T = P1DOBE01) %>%
+  pivot_longer(cols = 2:3, names_to = "NAZEV", values_to = "TEPLOTA")
+
+klima <- klimadata %>%
+  mutate(ROK = lubridate::year(date),
+         M = lubridate::month(date),
+         D = lubridate::day(date)) %>%
+  group_by(ROK, NAZEV) %>%
+  arrange(M, D) %>%
+  slice(15:46) %>%
+  mutate(MEAN_T = mean(as.numeric(TEPLOTA))) %>%
+  ungroup() %>%
+  group_by(ROK, NAZEV) %>%
+  summarise(MEAN_T = unique(MEAN_T))
+
+klimat <- klima %>%
+  filter(NAZEV == "KLEME_T") %>%
+  dplyr::select(MEAN_T)
+
+netopyri_ma_t <- netopyri_ma %>%
+  left_join(klimat, by = "ROK") %>%
+  mutate(OPEN = case_when(ROK < 2005 ~ "o", TRUE ~ "z"))
+
+netopyri_all_t <- netopyri_all %>% left_join(klimat, by = "ROK")
+
+# Filtered subsets
+jj <- netopyri_all_t %>% filter(DRUH == "Paus")
+netopyri_summary <- netopyri_all_t %>% filter(DRUH == "Mmyo", POCET > 1000) %>% mutate(FRACTION = POCET/MEAN_T)
