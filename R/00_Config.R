@@ -52,7 +52,7 @@ radnice  <- read.csv2("Data/Inputs/radnice.csv")
 # 2. LOAD CESKY KRAS ----
 netopyri_all <- read.csv2("Data/Inputs/netopyri_all.csv",
                           stringsAsFactors = FALSE, fileEncoding = "Windows-1250")
-netopyri_ma  <- read.csv2("Data/Inputs/netopyri_ma.csv",
+netopyri_ma  <- read.csv("Data/Inputs/netopyri_ma.csv",
                           stringsAsFactors = FALSE, fileEncoding = "Windows-1250")
 
 netopyri_all <- netopyri_all %>% 
